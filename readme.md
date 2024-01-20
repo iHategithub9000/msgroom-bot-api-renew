@@ -21,13 +21,14 @@ The arguments passed to `func`:
 - first argument - args of the command
 - second argument - the message event
 
-### `connect(nick, apikey, url)`
+### `connect(nick, apikey, url, bottag)`
 
 Connects the bot client to the server.
 
 - `nick` (string): The username or nickname of the bot.
 - `apikey` (string): The API key for authentication.
 - `url` (string | URL): (Optional) The URL of the server to connect to. Defaults to `wss://windows96.net:4096`.
+- `bottag` (bool): (Optional) If true, the bot has a Bot tag. ONLY WORKS ON NOLANWHY's MRCS. Defaults to true.
 
 Returns a promise that resolves when the connection is successful or rejects with an error if there is an issue.
 
@@ -49,7 +50,7 @@ Disconnects the bot client from the server, and kills the process.
 
 - `kill` if true, it kills the process after disconnection.
 
-### `defaultAdminCommandsTemplate(id,prefix,botname,expressClass,evash)`
+### `defaultAdminCommandsTemplate(id,prefix,botname,expressClass)`
 
 Initializes a default admin command template (not using `this.command(..)`)
 
@@ -57,14 +58,13 @@ Initializes a default admin command template (not using `this.command(..)`)
 - `prefix` (string): The prefix of the commands.
 - `botname` (string): The name of the bot, it is used in command outputs.
 - `expressClass` (class): The express class. Put it in only if you are using one.
-- `evash` (bool): if true, chpspawn and eval will work
 Commands in template:
 say - makes the bot say whatever is in argument 1 
 name - renames the bot's user to whatever is in argument 1 
 shutdown - shuts the bot down 
-chpspawn - spawns process with whatever commandline you put, only works on windows and only works if `evash` is true
+chpspawn - spawns process with whatever commandline you put, only works on windows 
 disconnectexpress - stops the express server you put into `expressClass`
-eval - evaluates js in arg 1 and only works if `evash` is true
+eval - evaluates js in arg 1
 
 ### `username`
 The bot's user name

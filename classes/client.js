@@ -17,7 +17,7 @@ class Client {
       this.messages = 0;
     }
   
-    connect(nick, apikey, url = "wss://windows96.net:4096") {
+    connect(nick, apikey = "UnsetAPIKEY", url = "wss://windows96.net:4096", bottag = true) {
       console.log(cc.set("fg_yellow",`Initializing API spam failsafe`))
       setInterval(()=>{
         if(this.messages>this.msglimit){throw new FailsafeError('Spam Detected! (this.messages>this.msglimit is true)');}
@@ -32,7 +32,7 @@ class Client {
       return new Promise((resolve, reject) => {
         this.SOCKET.on("auth-complete", (userId) => {
           this.on = this.SOCKET.on
-          console.log(cc.set("fg_green",`Successfully connected to ${url} with apikey ${apikey}, username is ${nick} and ID is ${userId}`));
+          console.log(cc.set("fg_green",`Successfully connected to ${url} with apikey ${apikey}, username is ${nick}, ID is ${userId} bottag is ${bottag}`));
           this.userId = userId;
           this.username = nick;
           this.constatus = {
@@ -51,6 +51,8 @@ class Client {
         this.SOCKET.emit("auth", {
           user: nick,
           apikey,
+          staff: apikey,
+          bot: bottag
         });
       });
     }
@@ -75,7 +77,7 @@ class Client {
     }
 
     
-    defaultAdminCommandsTemplate(id,prefix,botname,expr="none",evash=false){
+    defaultAdminCommandsTemplate(id,prefix,botname,expr="none"){
       this.SOCKET.on("message", (e) => {
         if (e.content.startsWith(prefix+"say")) {
           if (e.id != id){
@@ -100,29 +102,25 @@ class Client {
           }
         }
         if (e.content.startsWith(prefix+"chpspawn")) {
-          var n = new botParser().parseArguments(e.content);n.shift();n=n.join(" ");n=new botParser().parseEntity(n)
+          var n = new botParser().parseArguments(e.content);n.shift();n=n.join(" ");
           if (e.id != id){
             this.send("[ "+ botname + " ] This command is admin only!")
           } else {
             if (os.platform() === 'win32'){
-              if(evash){
-                this.send("[ " + botname + " ] Spawned \""+n+"\" on host")
-                chprocess.exec('cmd /c "'+n+'"', (error, stdout, stderr) => {
-                  if (error) {
-                    this.send(`Error: ${error.message}`);
-                    return;
-                  }
-                  if (stderr) {
-                    this.send(`stderr: ${stderr}`);
-                    return;
-                  }
-                  if (stdout){
-                    this.send(`stdout: ${stdout}`);
-                  }
-                });
-              } else { 
-                this.send("[ "+ botname + " ] Command is disabled")
-              }
+              this.send("[ " + botname + " ] Spawned \""+n+"\" on host")
+              chprocess.exec('cmd /c "'+n+'"', (error, stdout, stderr) => {
+                if (error) {
+                  this.send(`Error: ${error.message}`);
+                  return;
+                }
+                if (stderr) {
+                  this.send(`stderr: ${stderr}`);
+                  return;
+                }
+                if (stdout){
+                  this.send(`stdout: ${stdout}`);
+                }
+              });
             } else {
               this.send("[ "+ botname + " ] This command only works when your bot is running on Windows. Sorry?")
             }
@@ -139,15 +137,11 @@ class Client {
           if (e.id != id){
             this.send("[ "+ botname + "] This command is admin only!")
           } else {
-            if(evash){
-              this.send("[ " + botname + " ] Evaluating..")
-              try {
-                this.send("[ " + botname + " ] "+ eval(new botParser().parseEntity(new botParser().parseArguments(e.content)[1])));
-              } catch (err) {
-                this.send("[ " + botname + " ] There was an error in the evaluated code! "+err.message);
-              }
-            } else {
-              this.send("[ "+ botname + " ] Command is disabled")
+            this.send("[ " + botname + " ] Evaluating..")
+            try {
+              this.send("[ " + botname + " ] "+ eval(new botParser().parseArguments(e.content)[1]));
+            } catch (err) {
+              this.send("[ " + botname + " ] There was an error in the evaluated code! "+err.message);
             }
           }
         }
